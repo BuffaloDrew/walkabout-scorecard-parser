@@ -2,6 +2,12 @@
 
 This command-line application parses Walkabout mini golf scorecard images using Anthropic's Claude API and outputs the data in a specified JSON format. It uses ES modules for improved modularity and future compatibility.
 
+## Demo
+
+https://github.com/user-attachments/assets/2cdfc49f-67f6-42f3-84ca-4390d5e44239
+
+
+
 ## Prerequisites
 
 - Node.js (v14.8.0 or later, as ES modules support is required)
