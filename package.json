@@ -1,0 +1,19 @@
+{
+  "name": "walkabout-score-parser",
+  "version": "1.0.0",
+  "description": "Parse Walkabout mini golf scorecards using Anthropic's API",
+  "main": "parse.js",
+  "scripts": {
+    "test": "node parse.js"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.25.0",
+    "dotenv": "^16.4.5",
+    "ora": "^8.0.1",
+    "yargs": "^17.7.2"
+  }
+}
