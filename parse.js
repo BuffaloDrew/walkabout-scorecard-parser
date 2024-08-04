@@ -6,6 +6,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
+import sharp from 'sharp';
 
 dotenv.config();
 
@@ -30,9 +31,50 @@ const argv = yargs(hideBin(process.argv))
   .alias('help', 'h')
   .parse();
 
+function getMediaType(filePath) {
+  const extension = path.extname(filePath).toLowerCase();
+  switch (extension) {
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.png':
+      return 'image/png';
+    case '.gif':
+      return 'image/gif';
+    default:
+      throw new Error(`Unsupported image format: ${extension}`);
+  }
+}
+
+async function validateAndConvertImage(imagePath) {
+  const mediaType = getMediaType(imagePath);
+  let imageBuffer = await sharp(imagePath).toBuffer();
+
+  // If it's a PNG, try converting to JPEG
+  if (mediaType === 'image/png') {
+    try {
+      imageBuffer = await sharp(imageBuffer).jpeg().toBuffer();
+      return { buffer: imageBuffer, mediaType: 'image/jpeg' };
+    } catch (error) {
+      console.warn(
+        'Failed to convert PNG to JPEG. Proceeding with original PNG.',
+      );
+    }
+  }
+
+  return { buffer: imageBuffer, mediaType };
+}
+
 async function parseScorecard(imagePath) {
-  const imageBuffer = fs.readFileSync(imagePath);
-  const base64Image = imageBuffer.toString('base64');
+  let imageData;
+  try {
+    imageData = await validateAndConvertImage(imagePath);
+  } catch (error) {
+    console.error('Error processing image:', error);
+    process.exit(1);
+  }
+
+  const base64Image = imageData.buffer.toString('base64');
 
   const prompt = `Parse the following Walkabout mini golf scorecard image and output the data in this JSON format:
 
@@ -71,7 +113,7 @@ Ensure the JSON is correctly formatted and includes all visible data from the sc
               type: 'image',
               source: {
                 type: 'base64',
-                media_type: 'image/jpeg',
+                media_type: imageData.mediaType,
                 data: base64Image,
               },
             },
