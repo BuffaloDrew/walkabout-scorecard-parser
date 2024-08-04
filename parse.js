@@ -31,44 +31,32 @@ const argv = yargs(hideBin(process.argv))
   .alias('help', 'h')
   .parse();
 
-function getMediaType(filePath) {
-  const extension = path.extname(filePath).toLowerCase();
-  switch (extension) {
-    case '.jpg':
-    case '.jpeg':
-      return 'image/jpeg';
-    case '.png':
-      return 'image/png';
-    case '.gif':
-      return 'image/gif';
-    default:
-      throw new Error(`Unsupported image format: ${extension}`);
-  }
-}
+async function processImage(imagePath) {
+  try {
+    const image = sharp(imagePath);
+    const metadata = await image.metadata();
 
-async function validateAndConvertImage(imagePath) {
-  const mediaType = getMediaType(imagePath);
-  let imageBuffer = await sharp(imagePath).toBuffer();
+    let processedImage = image;
+    const mediaType = 'image/jpeg';
 
-  // If it's a PNG, try converting to JPEG
-  if (mediaType === 'image/png') {
-    try {
-      imageBuffer = await sharp(imageBuffer).jpeg().toBuffer();
-      return { buffer: imageBuffer, mediaType: 'image/jpeg' };
-    } catch (error) {
-      console.warn(
-        'Failed to convert PNG to JPEG. Proceeding with original PNG.',
-      );
+    // Convert to JPEG if the image is not already JPEG
+    if (metadata.format !== 'jpeg') {
+      processedImage = image.jpeg();
     }
-  }
 
-  return { buffer: imageBuffer, mediaType };
+    const buffer = await processedImage.toBuffer();
+
+    return { buffer, mediaType };
+  } catch (error) {
+    console.error('Error processing image:', error);
+    throw error;
+  }
 }
 
 async function parseScorecard(imagePath) {
   let imageData;
   try {
-    imageData = await validateAndConvertImage(imagePath);
+    imageData = await processImage(imagePath);
   } catch (error) {
     console.error('Error processing image:', error);
     process.exit(1);
