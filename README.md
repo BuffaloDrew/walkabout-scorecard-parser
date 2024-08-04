@@ -1,6 +1,12 @@
 # Walkabout Scorecard Parser
 
-This command-line application parses Walkabout mini golf scorecard images using Anthropic's Claude API and outputs the data in a specified JSON format. It uses ES modules for improved modularity and future compatibility.
+This command-line application parses Walkabout mini golf scorecard images using Anthropic's Claude API and outputs the data in a specified JSON format.
+
+## Demo
+
+https://github.com/user-attachments/assets/2cdfc49f-67f6-42f3-84ca-4390d5e44239
+
+
 
 ## Prerequisites
 
